@@ -109,7 +109,7 @@ def analyze(sql, reddit, comment, words, thenorthan):
         
         confirm = raw_input("Comment on this post? y/n: ")
         
-        if (confirm == "y"):
+        if (confirm.lower() == "y"):
             reddit.postComment(comment[1])
             sql.newComment(comment[1])
             
@@ -118,7 +118,7 @@ def analyze(sql, reddit, comment, words, thenorthan):
                 threshold += confidence
                 sql.updateConfidence(threshold, thresholdN)
             
-        elif (confirm == "n"):
+        elif (confirm.lower() == "n"):
             if (confidence > threshold):
                 thresholdN += 1
                 threshold += confidence
