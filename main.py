@@ -23,6 +23,17 @@ def findWord(words, word, index, thenthanIndex):
         
     return False
 
+def confidenceWeight(index):
+    index = abs(index)
+    
+    if (index == 1):
+        return 1
+    elif (index == 2):
+        return .66
+    elif (index == 3):
+        return .33
+    
+
 def getThenConfidence(then, than, words, thenthanIndex):
     confidence = 0
     
@@ -32,7 +43,8 @@ def getThenConfidence(then, than, words, thenthanIndex):
         word = t[0]
         
         if (findWord(words, word, index, thenthanIndex)):
-            confidence = 100 - (i * 10)
+            confidence = (100 - (i * 10)) * confidenceWeight(index)
+            
         i += 1
     
     if (confidence > 0):
@@ -42,7 +54,7 @@ def getThenConfidence(then, than, words, thenthanIndex):
             word = t[0]
             
             if (findWord(words, word, index, thenthanIndex)):
-                confidence = confidence - (100 -(i * 10))
+                confidence = confidence - ((100 -(i * 10)) * confidenceWeight(index))
             i += 1
             
     return confidence
@@ -56,7 +68,7 @@ def getThanConfidence(then, than, words, thenthanIndex):
         word = t[0]
             
         if (findWord(words, word, index, thenthanIndex)):
-            confidence = (100 - (i * 10))
+            confidence = (100 - (i * 10)) * confidenceWeight(index)
         i += 1
             
     if (confidence > 0):
@@ -66,7 +78,7 @@ def getThanConfidence(then, than, words, thenthanIndex):
             word = t[0]
         
             if (findWord(words, word, index, thenthanIndex)):
-                confidence = confidence - (100 - (i * 10))
+                confidence = confidence - ((100 - (i * 10)) * confidenceWeight(index))
             i += 1
                 
     return confidence
