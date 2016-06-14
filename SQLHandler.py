@@ -83,6 +83,8 @@ class SQLHandler:
             self.db.commit()
             
         except MySQLdb.Error as e:
+            print "Tag: " + tag
+            print "Pos: " + str(position)
             self.db.rollback()
             raise e
         
@@ -100,11 +102,13 @@ class SQLHandler:
     def newThanTag(self, tag, position):
         try:
             self.cursor.execute("INSERT INTO thenthandb.thantag(tag, count, position) \
-                VALUES('%s', '%d', '%d'" % \
+                VALUES('%s', '%d', '%d')" % \
                 (tag, 0, position))
             self.db.commit()
             
         except MySQLdb.Error as e:
+            print "Tag: " + tag
+            print "Pos: " + str(position)
             self.db.rollback()
             raise e
     

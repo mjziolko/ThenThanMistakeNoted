@@ -13,9 +13,9 @@ class NLTKHandler:
         return tokenizedSentence
     
     def tag(self, tokenizedSentence):
-        tagTuple = nltk.pos_tag(tokenizedSentence)
+        taggedWords = nltk.pos_tag(tokenizedSentence)
         
-        return tagTuple
+        return taggedWords
     
     def getTopThenTags(self):
         return self.sql.getTopThenTags()
@@ -36,7 +36,7 @@ class NLTKHandler:
     
     def findWord(self, words, word, index, thenthanIndex):
         if (self.checkRange(words, index, thenthanIndex)):
-            if (words[index + thenthanIndex] == word):
+            if (words[index + thenthanIndex][1] == word):
                 return True
             
         return False
@@ -52,15 +52,15 @@ class NLTKHandler:
             return .33
         
     
-    def getThenConfidence(self, then, than, words, thenthanIndex):
+    def getThenConfidence(self, then, than, tags, thenthanIndex):
         confidence = 0
         
         i = 0
         for t in than:
             index = t[1]
-            word = t[0]
+            tag = t[0]
             
-            if (self.findWord(words, word, index, thenthanIndex)):
+            if (self.findWord(tags, tag, index, thenthanIndex)):
                 confidence = (100 - (i * 10)) * self.confidenceWeight(index)
                 
             i += 1
@@ -69,23 +69,23 @@ class NLTKHandler:
             i = 0
             for t in then:
                 index = t[1]
-                word = t[0]
+                tag = t[0]
                 
-                if (self.findWord(words, word, index, thenthanIndex)):
+                if (self.findWord(tags, tag, index, thenthanIndex)):
                     confidence = confidence - ((100 -(i * 10)) * self.confidenceWeight(index))
                 i += 1
                 
         return confidence
     
-    def getThanConfidence(self, then, than, words, thenthanIndex):
+    def getThanConfidence(self, then, than, tags, thenthanIndex):
         confidence = 0
         
         i = 0
         for t in then:
             index = t[1]
-            word = t[0]
+            tag = t[0]
                 
-            if (self.findWord(words, word, index, thenthanIndex)):
+            if (self.findWord(tags, tag, index, thenthanIndex)):
                 confidence = (100 - (i * 10)) * self.confidenceWeight(index)
             i += 1
                 
@@ -93,9 +93,9 @@ class NLTKHandler:
             i = 0
             for t in than:
                 index = t[1]
-                word = t[0]
+                tag = t[0]
             
-                if (self.findWord(words, word, index, thenthanIndex)):
+                if (self.findWord(tags, tag, index, thenthanIndex)):
                     confidence = confidence - ((100 - (i * 10)) * self.confidenceWeight(index))
                 i += 1
                     
@@ -106,10 +106,12 @@ class NLTKHandler:
         thenthanIndex = self.findThenThanIndex(words, thenorthan)
         index = 0
         
-        tokenizedWords = self.tokenize(comment[0])
-        tags = self.tag(tokenizedWords)
+        token = self.tokenize(comment[0])
+        tags = self.tag(token)
         
         for tup in tags:
+            if (tup[1] == "NN"): #Fuck Nouns
+                continue
             if (thenorthan == "then"):
                 exists = self.sql.thenTagExists(tup[1], index - thenthanIndex)
                 
@@ -134,6 +136,9 @@ class NLTKHandler:
         if (comment[1] in commented):
             return False
         
+        token = self.tokenize(comment[0])
+        tags = self.tag(token)
+        
         thenthanIndex = self.findThenThanIndex(words, thenorthan)
         threshold = self.sql.getConfidence()
         thresholdN = threshold[1]
@@ -142,9 +147,9 @@ class NLTKHandler:
         than = self.getTopThanTags()
         
         if (thenorthan == "then"):
-            confidence = self.getThenConfidence(then, than, words, thenthanIndex)
+            confidence = self.getThenConfidence(then, than, tags, thenthanIndex)
         elif (thenorthan == "than"):
-            confidence = self.getThanConfidence(then, than, words, thenthanIndex)
+            confidence = self.getThanConfidence(then, than, tags, thenthanIndex)
             
         #if (confidence > threshold / thresholdN):
         if (confidence > 0):
@@ -158,6 +163,8 @@ class NLTKHandler:
                 print threshold/thresholdN
             print "Comment Text:\n"
             print comment[0]
+            print "Tags:\n"
+            print tags
             print "Words Compared From DB:\n"
             print "Then:"
             print then
