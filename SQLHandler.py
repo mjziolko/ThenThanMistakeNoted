@@ -1,6 +1,7 @@
 import MySQLdb
 import datetime
 from config import *
+from __builtin__ import True
 
 class SQLHandler:
     db = MySQLdb.connect(SQL_SERVER, SQL_USERNAME, SQL_PASS, SQL_DB)
@@ -22,9 +23,23 @@ class SQLHandler:
         results = self.cursor.fetchall()
         return results
     
+    def getTopThenTags(self):
+        self.cursor.execute("SELECT tag, position FROM thenthandb.thentag \
+            ORDER BY count desc \
+            LIMIT 10")
+        results = self.cursor.fetchall()
+        return results
+    
     def getTopThans(self):
         self.cursor.execute("SELECT word, position, count FROM thenthandb.than \
             WHERE word != 'than' \
+            ORDER BY count desc \
+            LIMIT 10")
+        results = self.cursor.fetchall()
+        return results
+    
+    def getTopThanTags(self):
+        self.cursor.execute("SELECT tag, position FROM thenthandb.thantag \
             ORDER BY count desc \
             LIMIT 10")
         results = self.cursor.fetchall()
@@ -60,11 +75,33 @@ class SQLHandler:
             self.db.rollback()
             raise e
         
+    def newThenTag(self, tag, position):
+        try:
+            self.cursor.execute("INSERT INTO thenthandb.thentag(tag, count, position) \
+                VALUES('%s', '%d', '%d')" % \
+                (tag, 0, position))
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
     def newThan(self, word, position):
         try:
             self.cursor.execute("INSERT INTO thenthandb.than(word, count, position) \
                 VALUES('%s', '%d', '%d')" % \
                 (word, 0, position))
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def newThanTag(self, tag, position):
+        try:
+            self.cursor.execute("INSERT INTO thenthandb.thantag(tag, count, position) \
+                VALUES('%s', '%d', '%d'" % \
+                (tag, 0, position))
             self.db.commit()
             
         except MySQLdb.Error as e:
@@ -82,11 +119,33 @@ class SQLHandler:
             self.db.rollback()
             raise e
         
+    def updateThenTag(self, tag, position):
+        try:
+            self.cursor.execute("UPDATE thenthandb.thentag SET count = count + 1 \
+                WHERE tag = '%s' AND position = '%d'" % \
+                (tag, position))
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
     def updateThan(self, word, position):
         try:
             self.cursor.execute("UPDATE thenthandb.than SET count = count + 1 \
                 WHERE word = '%s' AND position = '%d'" % \
                 (word, position))
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def updateThanTag(self, tag, position):
+        try:
+            self.cursor.execute("UPDATE thenthandb.thantag SET count = count + 1 \
+                WHERE tag = '%s' AND position = '%d'" % \
+                (tag, position))
             self.db.commit()
             
         except MySQLdb.Error as e:
@@ -109,6 +168,22 @@ class SQLHandler:
             self.db.rollback()
             raise e
     
+    def thenTagExists(self, tag, position):
+        try:
+            self.cursor.execute("SELECT tag FROM thenthandb.thentag \
+                WHERE tag = '%s' AND position = '%d'" % \
+                (tag, position))
+            results = self.cursor.fetchall()
+            
+            if (len(results) > 0):
+                return True
+            
+            return False
+        
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+    
     def thanExists(self, word, position):
         try:
             self.cursor.execute("SELECT word FROM thenthandb.than \
@@ -119,6 +194,22 @@ class SQLHandler:
             if (len(results) > 0):
                 return True
         
+            return False
+        
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def thanTagExists(self, tag, position):
+        try:
+            self.cursor.execute("SELECT tag FROM thenthandb.thantag \
+                WHERE tag = '%s' AND position = '%d'" % \
+                (tag, position))
+            results = self.cursor.fetchall()
+            
+            if (len(results) > 0):
+                return True
+            
             return False
         
         except MySQLdb.Error as e:
@@ -160,7 +251,8 @@ class SQLHandler:
     def getConfidence(self):
         try:
             self.cursor.execute("SELECT threshold, n FROM thenthandb.confidence \
-                WHERE id = 1")
+                WHERE id = 2")
+                
             results = self.cursor.fetchall()
             return results[0]
         
@@ -171,7 +263,7 @@ class SQLHandler:
     def updateConfidence(self, threshold, n):
         try:
             self.cursor.execute("UPDATE thenthandb.confidence SET threshold = '%d', n = '%d' \
-                WHERE id = 1" % \
+                WHERE id = 2" % \
                 (threshold, n))
             self.db.commit()
             
