@@ -106,7 +106,7 @@ class NLTKHandler:
         thenthanIndex = self.findThenThanIndex(words, thenorthan)
         index = 0
         
-        tokenizedWords = self.tokenize(words)
+        tokenizedWords = self.tokenize(comment[0])
         tags = self.tag(tokenizedWords)
         
         for tup in tags:
