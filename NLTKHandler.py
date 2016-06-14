@@ -111,7 +111,7 @@ class NLTKHandler:
         
         for tup in tags:
             if (thenorthan == "then"):
-                exists = self.sql.thenTagExists(tup[0], index - thenthanIndex)
+                exists = self.sql.thenTagExists(tup[1], index - thenthanIndex)
                 
                 if (index - thenthanIndex <= 3 and index - thenthanIndex >= -3 and index - thenthanIndex != 0):
                     if (exists):
@@ -119,7 +119,7 @@ class NLTKHandler:
                     else:
                         self.sql.newThenTag(tup[1], index - thenthanIndex)
             else:
-                exists = self.sql.thanTagExists(tup[0], index - thenthanIndex)
+                exists = self.sql.thanTagExists(tup[1], index - thenthanIndex)
                 
                 if (index - thenthanIndex <= 3 and index - thenthanIndex >= -3 and index - thenthanIndex != 0):
                     if (exists):

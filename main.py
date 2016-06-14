@@ -3,7 +3,7 @@ from Reddit import Reddit
 from NLTKHandler import NLTKHandler
 import time                
 
-def thenOrThan(self, words):
+def thenOrThan(words):
     return "then" if "then" in words else "than"
 
 count = 0
