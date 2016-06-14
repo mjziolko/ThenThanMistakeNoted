@@ -145,7 +145,7 @@ def process(sql, reddit, comment, words, thenorthan):
     
     for word in words:
         
-        if (word == "the" or len(word) < 3):
+        if (word == "the" or len(word) < 3 or len(word) > 15):
             continue
         
         if (thenorthan == "then"):
