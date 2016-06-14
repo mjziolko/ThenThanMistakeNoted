@@ -188,3 +188,43 @@ class SQLHandler:
         except MySQLdb.Error as e:
             self.db.rollback()
             raise e
+    
+    def addFalsePositive(self):
+        try:
+            self.cursor.execute("UPDATE thenthandb.stats SET falsepositive = falsepositive + 1 \
+                WHERE id = 1")
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def addFalseNegative(self):
+        try:
+            self.cursor.execute("UPDATE thenthandb.stats SET falsenegative = falsenegative + 1 \
+                WHERE id = 1")
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def addTruePositive(self):
+        try:
+            self.cursor.execute("UPDATE thenthandb.stats SET truepositive = truepositive + 1 \
+                WHERE id = 1")
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def addTrueNegative(self):
+        try:
+            self.cursor.execute("UPDATE thenthandb.stats SET truenegative = truenegative + 1 \
+                WHERE id = 1")
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e

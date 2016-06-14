@@ -125,16 +125,22 @@ def analyze(sql, reddit, comment, words, thenorthan):
             reddit.postComment(comment[1])
             sql.newComment(comment[1])
             
-            if (confidence < threshold):
+            if (confidence < threshold/thresholdN):
                 thresholdN += 1
                 threshold += confidence
                 sql.updateConfidence(threshold, thresholdN)
+                sql.addFalseNegative()
+            else:
+                sql.addTruePositive()
             
         elif (confirm.lower() == "n"):
-            if (confidence > threshold):
+            if (confidence > threshold/thresholdN):
                 thresholdN += 1
                 threshold += confidence
                 sql.updateConfidence(threshold, thresholdN)
+                sql.addFalsePositive()
+            else:
+                sql.addTrueNegative()
     
     return True
 
