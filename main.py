@@ -60,7 +60,7 @@ while True:
             continue
         else:
             confidence = abs(result[1] - result[2])
-            if (confidence > 1):
+            if (confidence > 1.5):
                 print "-----------------------------------------------"
                 print "                  COMMENTING!                  "
                 print "-----------------------------------------------"
@@ -70,33 +70,9 @@ while True:
                 print str(result[1]) + ", " + str(result[2])
                 print "Confidence:"
                 print confidence
-                if (thresholdN != 0):
-                    print "Threshold:"
-                    print threshold/thresholdN
-                
-                
-                confirm = raw_input("Comment on this post? y/n ")
-                
-                if (confirm.lower() == "y"):
-                    reddit.postComment(comment[1])
-                    sql.newComment(comment[1])
-                    
-                    if (confidence < threshold/thresholdN):
-                        thresholdN += 1
-                        threshold += confidence
-                        sql.updateConfidence(threshold, thresholdN)
-                        sql.addFalseNegative()
-                    else:
-                        sql.addTruePositive()
-                    
-                elif (confirm.lower() == "n"):
-                    if (confidence > threshold/thresholdN):
-                        thresholdN += 1
-                        threshold += confidence
-                        sql.updateConfidence(threshold, thresholdN)
-                        sql.addFalsePositive()
-                    else:
-                        sql.addTrueNegative()
+                                
+                reddit.postComment(comment[1])
+                sql.newComment(comment[1])
         
     print "Sleeping for 1 minute"
     time.sleep(60)
