@@ -6,7 +6,7 @@ import unicodedata
 class Reddit:
     
     def __init__(self):
-        userAgent = ("ThenThan 0.5")
+        userAgent = ("ThenThan 0.6")
         self.r = praw.Reddit(user_agent = userAgent)
         self.r.login(REDDIT_USERNAME, REDDIT_PASS)
         self.subs = open("subreddits", "r")
