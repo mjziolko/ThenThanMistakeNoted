@@ -221,9 +221,10 @@ class SQLHandler:
             raise e
             
     def getViews(self):
-        self.cursor.execute("SELECT id FROM thenthandb.viewed")
+        self.cursor.execute("SELECT id FROM thenthandb.viewed") #\
+            #WHERE date > date_sub(CURDATE(), interval 12 hour)")
         results = self.cursor.fetchall()
-        return results
+        return [item for sublist in results for item in sublist]
     
     def getComments(self):
         self.cursor.execute("SELECT id, date FROM thenthandb.commented")
@@ -255,7 +256,7 @@ class SQLHandler:
     def getConfidence(self):
         try:
             self.cursor.execute("SELECT threshold, n FROM thenthandb.confidence \
-                WHERE id = 2")
+                WHERE id = 3")
                 
             results = self.cursor.fetchall()
             return results[0]
@@ -267,7 +268,7 @@ class SQLHandler:
     def updateConfidence(self, threshold, n):
         try:
             self.cursor.execute("UPDATE thenthandb.confidence SET threshold = '%d', n = '%d' \
-                WHERE id = 2" % \
+                WHERE id = 3" % \
                 (threshold, n))
             self.db.commit()
             
@@ -279,6 +280,46 @@ class SQLHandler:
         try:
             self.cursor.execute("DELETE thenthandb.than, thenthandb.then FROM thenthandb.than INNER JOIN thenthandb.then \
                 WHERE than.word = then.word AND than.position = then.position AND then.count < 30 AND than.count < 30")
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+
+    def addFalsePositive(self):
+        try:
+            self.cursor.execute("UPDATE thenthandb.stats SET falsepositive = falsepositive + 1 \
+                WHERE id = 1")
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def addFalseNegative(self):
+        try:
+            self.cursor.execute("UPDATE thenthandb.stats SET falsenegative = falsenegative + 1 \
+                WHERE id = 1")
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def addTruePositive(self):
+        try:
+            self.cursor.execute("UPDATE thenthandb.stats SET truepositive = truepositive + 1 \
+                WHERE id = 1")
+            self.db.commit()
+            
+        except MySQLdb.Error as e:
+            self.db.rollback()
+            raise e
+        
+    def addTrueNegative(self):
+        try:
+            self.cursor.execute("UPDATE thenthandb.stats SET truenegative = truenegative + 1 \
+                WHERE id = 1")
             self.db.commit()
             
         except MySQLdb.Error as e:

@@ -1,17 +1,14 @@
 from SQLHandler import SQLHandler
 from Reddit import Reddit
-from NLTKHandler import NLTKHandler
+from WLMHandler import WLMHandler
 import time                
-
-def thenOrThan(words):
-    return "then" if "then" in words else "than"
 
 count = 0
 
 while True:
     sql = SQLHandler()
     reddit = Reddit()
-    nltk = NLTKHandler()
+    wlm = WLMHandler()
     
     count += 1
     
@@ -19,24 +16,87 @@ while True:
     print "Gathering Comments"
     
     comments = reddit.getNewComments()
-    views = sql.getViews()
+    
+    viewed = sql.getViews()
+    commented = sql.getComments()
     
     print "Processing Data"
     for comment in comments:
-        flag = True
-        words = [x.lower().strip() for x in comment[0].split()]
-        thenorthan = thenOrThan(words)
+        threshold = sql.getConfidence()
+        thresholdN = threshold[1]
+        threshold = threshold[0]
         
-        for i in views:
-            if comment[1] == i[0]:
-                flag = False
-                break
+        if (comment[1] in commented):
+            commented = sql.getComments()
+            continue
+        elif (comment[1] in viewed):
+            continue
+        else:
+            sql.newView(comment[1])
+            viewed = sql.getViews()
         
-        if (flag):
-            flag = nltk.analyze(reddit, comment, words, thenorthan)
+        thenthanIndex = 0
+        startIndex = 0
+        expected = None
+        wordList = [x.lower().strip() for x in comment[0].split()]
         
-        if (flag):
-            nltk.processSentence(comment, words, thenorthan)
-
+        if ("then" in wordList):
+            thenthanIndex = wordList.index("then")
+            expected = "then"
+        else:
+            thenthanIndex = wordList.index("than")
+            expected = "than"
+        
+        if (thenthanIndex - 4 < 0):
+            startIndex = 0
+        else:
+            startIndex = thenthanIndex - 4
+            
+        words = " ".join(wordList[startIndex:thenthanIndex])
+        
+        result = wlm.determine(words)
+        
+        if (result == None or result[0] == expected):
+            continue
+        else:
+            confidence = abs(result[1] - result[2])
+            if (confidence > 1):
+                print "-----------------------------------------------"
+                print "                  COMMENTING!                  "
+                print "-----------------------------------------------"
+                print "Comment Text:\n"
+                print comment[0]
+                print "Probability Values: (update, old)"
+                print str(result[1]) + ", " + str(result[2])
+                print "Confidence:"
+                print confidence
+                if (thresholdN != 0):
+                    print "Threshold:"
+                    print threshold/thresholdN
+                
+                
+                confirm = raw_input("Comment on this post? y/n ")
+                
+                if (confirm.lower() == "y"):
+                    reddit.postComment(comment[1])
+                    sql.newComment(comment[1])
+                    
+                    if (confidence < threshold/thresholdN):
+                        thresholdN += 1
+                        threshold += confidence
+                        sql.updateConfidence(threshold, thresholdN)
+                        sql.addFalseNegative()
+                    else:
+                        sql.addTruePositive()
+                    
+                elif (confirm.lower() == "n"):
+                    if (confidence > threshold/thresholdN):
+                        thresholdN += 1
+                        threshold += confidence
+                        sql.updateConfidence(threshold, thresholdN)
+                        sql.addFalsePositive()
+                    else:
+                        sql.addTrueNegative()
+        
     print "Sleeping for 1 minute"
     time.sleep(60)
