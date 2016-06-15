@@ -146,11 +146,11 @@ class SQLHandler:
             self.db.rollback()
             raise e
             
-    def newComment(self, commentId):
+    def newComment(self, commentId, comment, subreddit):
         try:
-            self.cursor.execute("INSERT INTO thenthandb.commented(id, date) \
-                VALUES('%s', '%s')" % \
-                (commentId, datetime.datetime.now()))
+            self.cursor.execute("INSERT INTO thenthandb.commented(id, comment, date, subreddit) \
+                VALUES('%s', '%s', '%s', '%s')" % \
+                (commentId, comment, datetime.datetime.now(), subreddit))
             self.db.commit()
             
         except MySQLdb.Error as e:
