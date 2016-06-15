@@ -101,8 +101,7 @@ def analyze(sql, reddit, comment, words, thenorthan):
     elif (thenorthan == "than"):
         confidence = getThanConfidence(then, than, words, thenthanIndex)
         
-    #if (confidence > threshold / thresholdN):
-    if (confidence > 0):
+    if (confidence > threshold / thresholdN):
         print "-----------------------------------------------"
         print "                  COMMENTING!                  "
         print "-----------------------------------------------"
@@ -113,34 +112,9 @@ def analyze(sql, reddit, comment, words, thenorthan):
             print threshold/thresholdN
         print "Comment Text:\n"
         print comment[0]
-        print "Words Compared From DB:\n"
-        print "Then:"
-        print then
-        print "\nThan:"
-        print than
-        
-        confirm = raw_input("Comment on this post? y/n: ")
-        
-        if (confirm.lower() == "y"):
-            reddit.postComment(comment[1])
-            sql.newComment(comment[1])
-            
-            if (confidence < threshold/thresholdN):
-                thresholdN += 1
-                threshold += confidence
-                sql.updateConfidence(threshold, thresholdN)
-                sql.addFalseNegative()
-            else:
-                sql.addTruePositive()
-            
-        elif (confirm.lower() == "n"):
-            if (confidence > threshold/thresholdN):
-                thresholdN += 1
-                threshold += confidence
-                sql.updateConfidence(threshold, thresholdN)
-                sql.addFalsePositive()
-            else:
-                sql.addTrueNegative()
+
+        reddit.postComment(comment[1])
+        sql.newComment(comment[1], comment[0], comment[2])
     
     return True
 
@@ -205,9 +179,5 @@ while True:
         if (flag):
             process(sql, reddit, comment, words, thenorthan)
 
-#    if (count % 2 == 1):
-#        print "Cleaning up junk data..."
-#        sql.cleanup()
-#    else:
     print "Sleeping for 1 minute"
     time.sleep(60)
