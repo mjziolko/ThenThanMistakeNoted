@@ -72,7 +72,7 @@ while True:
                 print confidence
                                 
                 reddit.postComment(comment[1])
-                sql.newComment(comment[1])
+                sql.newComment(comment[1], comment[2])
         
     print "Sleeping for 1 minute"
     time.sleep(60)

@@ -34,10 +34,10 @@ class Reddit:
                         if (comment.id not in ids):
                             index = 0
                             ids.append(comment.id)
-                            filteredComments.append([sanitizedString, comment.id])
+                            filteredComments.append([sanitizedString, comment.id, sub])
                         else:
                             index += 1
-                            filteredComments.append([sanitizedString, comment.id + "-" + str(index)])
+                            filteredComments.append([sanitizedString, comment.id + "-" + str(index), sub])
                             
         
         return filteredComments
