@@ -34,7 +34,7 @@ class SQLHandler:
     def newComment(self, commentId, subreddit):
         try:
             self.cursor.execute("INSERT INTO thenthandb.commented(id, date, subreddit) \
-                VALUES('%s', '%s')" % \
+                VALUES('%s', '%s', '%s')" % \
                 (commentId, datetime.datetime.now(), subreddit))
             self.db.commit()
             
