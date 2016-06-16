@@ -1,6 +1,5 @@
 import praw
 from config import *
-import string
 import unicodedata
 
 class Reddit:
@@ -13,9 +12,17 @@ class Reddit:
         
     def convertToString(self, s):
         return unicodedata.normalize("NFKD", s).encode("ascii", "ignore")
+    
+    def removeRedditQuotes(self, s):
+        lines = s.split('\n')
+        restructuredString = ""
         
-    def removePunctuation(self, s):
-        return s.translate(string.maketrans("",""), string.punctuation).strip()
+        for line in lines:
+            line = line.strip()
+            if (len(line) > 0 and line[0] != '>'):
+                restructuredString = restructuredString + line + '\n'
+                                
+        return restructuredString
         
     def getNewComments(self):
         comments = []
@@ -27,17 +34,16 @@ class Reddit:
             comments = s.get_comments()
                                    
             for comment in comments:
-                for split in comment.body.split('.'):
-                    sanitizedString = self.removePunctuation(self.convertToString(split))
-                    
+                quotelessString = self.removeRedditQuotes(comment.body)
+                for split in quotelessString.split('.'):
                     if " then " in split or " than " in split:
                         if (comment.id not in ids):
                             index = 0
                             ids.append(comment.id)
-                            filteredComments.append([sanitizedString, comment.id, sub])
+                            filteredComments.append([split, comment.id, sub])
                         else:
                             index += 1
-                            filteredComments.append([sanitizedString, comment.id + "-" + str(index), sub])
+                            filteredComments.append([split, comment.id + "-" + str(index), sub])
                             
         
         return filteredComments

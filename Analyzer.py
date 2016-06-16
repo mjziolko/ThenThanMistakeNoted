@@ -1,8 +1,12 @@
-
+import string, unicodedata
 
 class Analyzer:
     def __init__(self):
         return
+    
+    def removePunctuation(self, s):
+        s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore")
+        return s.translate(string.maketrans("",""), string.punctuation).strip()
     
     def findThenThanIndex(self, words, thenorthan):
         return words.index(thenorthan)
@@ -91,18 +95,19 @@ class Analyzer:
             if (word == "the" or len(word) < 3 or len(word) > 15):
                 continue
             
-            if (thenorthan == "then"):
-                exists = sql.thenExists(word, index - thenthanIndex)
+            if (index - thenthanIndex <= 3 and index - thenthanIndex >= -3):
+                word = self.removePunctuation(word)
                 
-                if (index - thenthanIndex <= 3 and index - thenthanIndex >= -3):
+                if (thenorthan == "then"):
+                    exists = sql.thenExists(word, index - thenthanIndex)
+                    
                     if (exists):
                         sql.updateThen(word, index - thenthanIndex)
                     else:
                         sql.newThen(word, index - thenthanIndex)
-            else:
-                exists = sql.thanExists(word, index - thenthanIndex)
-                
-                if (index - thenthanIndex <= 3 and index - thenthanIndex >= -3):
+                else:
+                    exists = sql.thanExists(word, index - thenthanIndex)
+                    
                     if (exists):
                         sql.updateThan(word, index - thenthanIndex)
                     else:

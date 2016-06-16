@@ -93,7 +93,7 @@ class SQLHandler:
             self.db.rollback()
             raise e
             
-    def thenExists(self, word, position):
+    def thenExists(self, word, position):        
         try:
             self.cursor.execute("SELECT word FROM thenthandb.then \
                 WHERE word = '%s' AND position = '%d'" % \
@@ -107,9 +107,10 @@ class SQLHandler:
         
         except MySQLdb.Error as e:
             self.db.rollback()
+            print word
             raise e
     
-    def thanExists(self, word, position):
+    def thanExists(self, word, position):        
         try:
             self.cursor.execute("SELECT word FROM thenthandb.than \
                 WHERE word = '%s' AND position = '%d'" % \
@@ -123,6 +124,7 @@ class SQLHandler:
         
         except MySQLdb.Error as e:
             self.db.rollback()
+            print word
             raise e
             
     def getViews(self):
