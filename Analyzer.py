@@ -1,4 +1,5 @@
 import string, unicodedata
+from __builtin__ import True
 
 class Analyzer:
     def __init__(self):
@@ -116,36 +117,41 @@ class Analyzer:
             index += 1
     
     def analyze(self, sql, reddit, comment, words, thenorthan):
-        commented = sql.getComments()
-        
-        if (comment[1] in commented):
-            return False
-        
-        thenthanIndex = self.findThenThanIndex(words, thenorthan)
-        threshold = sql.getConfidence()
-        thresholdN = threshold[1]
-        threshold = threshold[0]
-        then = sql.getTopThens()
-        than = sql.getTopThans()
-        
-        if (thenorthan == "then"):
-            confidence = self.getThenConfidence(then, than, words, thenthanIndex)
-        elif (thenorthan == "than"):
-            confidence = self.getThanConfidence(then, than, words, thenthanIndex)
+        try:
+            commented = sql.getComments()
             
-        if (confidence > threshold / thresholdN):
-            print "-----------------------------------------------"
-            print "                  COMMENTING!                  "
-            print "-----------------------------------------------"
-            print "Confidence:"
-            print confidence
-            if (thresholdN != 0):
-                print "Threshold:"
-                print threshold/thresholdN
-            print "Comment Text:\n"
-            print comment[0]
-    
-            reddit.postComment(comment[1])
-            sql.newComment(comment[1], comment[0], comment[2])
+            if (comment[1] in commented):
+                return False
+            
+            thenthanIndex = self.findThenThanIndex(words, thenorthan)
+            threshold = sql.getConfidence()
+            thresholdN = threshold[1]
+            threshold = threshold[0]
+            then = sql.getTopThens()
+            than = sql.getTopThans()
+            
+            if (thenorthan == "then"):
+                confidence = self.getThenConfidence(then, than, words, thenthanIndex)
+            elif (thenorthan == "than"):
+                confidence = self.getThanConfidence(then, than, words, thenthanIndex)
+                
+            if (confidence > threshold / thresholdN):
+                print "-----------------------------------------------"
+                print "                  COMMENTING!                  "
+                print "-----------------------------------------------"
+                print "Confidence:"
+                print confidence
+                if (thresholdN != 0):
+                    print "Threshold:"
+                    print threshold/thresholdN
+                print "Comment Text:\n"
+                print comment[0]
         
-        return True    
+                reddit.postComment(comment[1])
+                sanitizedComment = self.removePunctuation(comment[0])
+                sql.newComment(comment[1], sanitizedComment, comment[2])
+            
+            return True
+        except:
+            print "Error with unicode encoding."
+            return False
